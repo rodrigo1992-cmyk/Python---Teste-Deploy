@@ -1,0 +1,19 @@
+// firebase-config.js - Arquivo de configuração Firebase
+// ⚠️ IMPORTANTE: Este arquivo deve ser mantido privado e não commitado no Git
+
+// Substitua os valores abaixo pelas suas credenciais Firebase
+window.firebaseConfig = {
+    apiKey: "SUA_API_KEY_AQUI",
+    authDomain: "gen-lang-client-0530296680.firebaseapp.com",
+    projectId: "gen-lang-client-0530296680",
+    storageBucket: "gen-lang-client-0530296680.firebasestorage.app",
+    messagingSenderId: "20277219870",
+    appId: "SEU_APP_ID_AQUI"
+};
+
+// Como obter suas credenciais:
+// 1. Acesse https://console.firebase.google.com
+// 2. Selecione seu projeto: gen-lang-client-0530296680
+// 3. Vá em Configurações → Geral → Seus aplicativos
+// 4. Clique no ícone da web (</>) ou em um app existente
+// 5. Copie os valores de apiKey e appId

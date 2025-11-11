@@ -1,37 +1,70 @@
-# Teste Deploy (GitHub Pages)
+# Projeto HTML + TypeScript + Firebase
 
-Este repositório contém um exemplo simples para testar o deploy de um site estático no GitHub Pages.
+## ⚠️ IMPORTANTE - CONFIGURAÇÃO DE SEGURANÇA
 
-O repositório inclui:
+### API Key Leaked - Ação Necessária
 
-- `index.html` — página de exemplo que será publicada.
-- `.github/workflows/pages.yml` — workflow GitHub Actions que publica o conteúdo do repositório no GitHub Pages quando há push para `main`.
+1. **Revogue a API key comprometida** no Google Cloud Console:
+   - Acesse: https://console.cloud.google.com/apis/credentials
+   - Localize a key: `AIzaSyDGfp7mVx5xvwg6iRPVQL2Y5naPiYzFwT0`
+   - Delete ou restrinja o acesso
 
-Como publicar (PowerShell - Windows):
+2. **Gere uma nova API key** no Firebase Console:
+   - https://console.firebase.google.com/
+   - Project Settings > General > Web apps
+   - Copie as novas credenciais
 
-1. Inicialize o repositório local (se ainda não tiver):
+3. **Configure o arquivo local** (NÃO commitado):
+   ```bash
+   cp firebase-config.js.example firebase-config.js
+   # Edite o arquivo com suas credenciais reais
+   ```
+
+## Estrutura do Projeto
+
+- `index.html` - Página principal com navegação
+- `produtos-firestore.html` - Versão JavaScript + Firebase
+- `produtos-typescript.html` - Versão TypeScript + Firebase
+- `src/` - Código TypeScript modular
+- `dist/` - JavaScript compilado
+- `firebase-config.js` - **Configuração local (não commitado)**
+
+## Comandos de Build
+
+```bash
+# Instalar dependências
+npm install
+
+# Compilar TypeScript
+npm run build
+
+# Compilar CSS
+npm run build-css
+
+# Build completo
+npm run build-all
+```
+
+## Deploy no GitHub Pages
 
 ```powershell
 git init
 git add .
-git commit -m "Add site and GH Pages workflow"
+git commit -m "Initial commit - secure version"
 git branch -M main
-```
-
-2. Adicione o remote e envie para o GitHub (substitua a URL abaixo):
-
-```powershell
 git remote add origin https://github.com/<seu-usuario>/<nome-do-repositorio>.git
 git push -u origin main
 ```
 
-3. Aguarde a Action concluir (aba Actions no GitHub). Quando terminar, a URL estará disponível em:
+URL: `https://<seu-usuario>.github.io/<nome-do-repositorio>/`
 
-```
-https://<seu-usuario>.github.io/<nome-do-repositorio>/
-```
+## Segurança
 
-Observações:
+- ✅ Credenciais movidas para arquivo local
+- ✅ `.gitignore` configurado
+- ✅ Arquivo exemplo criado
+- ❌ **API key ainda precisa ser revogada/regenerada**
 
-- Se preferir, você pode publicar apenas os arquivos dentro de uma pasta `docs/` e ativar GitHub Pages nas configurações do repositório apontando para `gh-pages`/`docs` conforme desejar. O workflow aqui publicado usa a ação oficial do Pages e publica a raiz do repositório.
-- Se o repositório for um repositório do tipo usuário/organização chamado `<seu-usuario>.github.io`, a URL pública será `https://<seu-usuario>.github.io/`.
+---
+
+**Status**: 🔴 Aguardando rotação de credenciais do usuário

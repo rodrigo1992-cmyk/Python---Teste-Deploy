@@ -4,6 +4,10 @@ client_secret.json
 config.json
 .env
 .env.local
+firebase-config.js
+*-config.js
+*.key
+*.secret
 
 # Node.js
 node_modules/
