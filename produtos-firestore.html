@@ -31,10 +31,16 @@
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold">📦 Produtos Cadastrados</h2>
-                <button id="reloadBtn" 
-                        class="bg-brand text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center gap-2">
-                    <span id="reloadIcon">🔄</span> Recarregar
-                </button>
+                <div class="flex gap-2">
+                    <button id="testConnectionBtn" 
+                            class="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 text-sm">
+                        🔍 Testar Conexão
+                    </button>
+                    <button id="reloadBtn" 
+                            class="bg-brand text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center gap-2">
+                        <span id="reloadIcon">🔄</span> Recarregar
+                    </button>
+                </div>
             </div>
             
             <div id="productsList" class="space-y-4">
@@ -117,20 +123,31 @@
 
         // Inicializar Firebase
         let app, db;
+        console.log('🚀 Inicializando Firebase...');
+        console.log('⚙️ Configuração:', {
+            projectId: firebaseConfig.projectId,
+            authDomain: firebaseConfig.authDomain
+        });
+        
         try {
             app = initializeApp(firebaseConfig);
+            console.log('✅ Firebase App inicializado');
+            
             db = getFirestore(app);
-            updateConnectionStatus('✅ Conectado ao Firestore', 'success');
+            console.log('✅ Firestore conectado');
+            
+            updateConnectionStatus('🔄 Conectado ao Firestore, carregando produtos...', 'info');
             loadProducts();
         } catch (error) {
+            console.error('❌ Erro na inicialização do Firebase:', error);
             updateConnectionStatus('❌ Erro na conexão: ' + error.message, 'error');
-            console.error('Erro Firebase:', error);
         }
 
         // Elementos DOM
         const productsList = document.getElementById('productsList');
         const addProductForm = document.getElementById('addProductForm');
         const reloadBtn = document.getElementById('reloadBtn');
+        const testConnectionBtn = document.getElementById('testConnectionBtn');
         const connectionStatus = document.getElementById('connectionStatus');
 
         // Atualizar status de conexão
@@ -146,28 +163,47 @@
 
         // Carregar produtos do Firestore
         async function loadProducts() {
+            console.log('🔍 Iniciando carregamento de produtos...');
+            console.log('📁 Coleção: "produto"');
+            console.log('🔑 Project ID:', firebaseConfig.projectId);
+            
             try {
                 // Listener em tempo real
                 const unsubscribe = onSnapshot(collection(db, "produto"), (querySnapshot) => {
+                    console.log('📊 Snapshot recebido. Tamanho:', querySnapshot.size);
+                    
                     const produtos = [];
                     querySnapshot.forEach((doc) => {
+                        console.log('📦 Documento encontrado:', doc.id, doc.data());
                         produtos.push({ id: doc.id, ...doc.data() });
                     });
                     
+                    console.log('✅ Total de produtos carregados:', produtos.length);
                     displayProducts(produtos);
                     updateStats(produtos);
+                    
+                    if (produtos.length > 0) {
+                        updateConnectionStatus(`✅ Conectado! ${produtos.length} produto(s) carregado(s)`, 'success');
+                    } else {
+                        updateConnectionStatus('⚠️ Conectado, mas nenhum produto encontrado na coleção "produto"', 'info');
+                    }
+                }, (error) => {
+                    // Callback de erro do onSnapshot
+                    console.error('❌ Erro no listener:', error);
+                    updateConnectionStatus('❌ Erro ao escutar mudanças: ' + error.message, 'error');
                 });
 
                 // Armazenar unsubscribe para limpeza se necessário
                 window.firestoreUnsubscribe = unsubscribe;
 
             } catch (error) {
-                console.error('Erro ao carregar produtos:', error);
+                console.error('❌ Erro ao configurar listener:', error);
                 updateConnectionStatus('❌ Erro ao carregar produtos: ' + error.message, 'error');
                 productsList.innerHTML = `
                     <div class="text-center py-8 text-red-500">
                         <p>❌ Erro ao carregar produtos</p>
                         <p class="text-sm mt-2">${error.message}</p>
+                        <p class="text-xs mt-2 text-gray-500">Verifique o Console (F12) para mais detalhes</p>
                     </div>
                 `;
             }
@@ -244,6 +280,41 @@
             } catch (error) {
                 console.error('Erro ao adicionar produto:', error);
                 updateConnectionStatus('❌ Erro ao adicionar produto: ' + error.message, 'error');
+            }
+        });
+
+        // Botão testar conexão
+        testConnectionBtn.addEventListener('click', async () => {
+            console.log('🧪 Teste de conexão iniciado...');
+            updateConnectionStatus('🧪 Testando conexão...', 'info');
+            
+            try {
+                // Teste direto de leitura
+                const testCollection = collection(db, "produto");
+                const snapshot = await getDocs(testCollection);
+                
+                console.log('📊 Resultado do teste:', {
+                    size: snapshot.size,
+                    empty: snapshot.empty,
+                    docs: snapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }))
+                });
+                
+                if (snapshot.empty) {
+                    updateConnectionStatus('⚠️ Conexão OK, mas coleção "produto" está vazia', 'info');
+                } else {
+                    updateConnectionStatus(`✅ Teste OK! ${snapshot.size} documento(s) encontrado(s)`, 'success');
+                }
+            } catch (error) {
+                console.error('❌ Erro no teste:', error);
+                updateConnectionStatus(`❌ Teste falhou: ${error.message}`, 'error');
+                
+                // Sugestões baseadas no tipo de erro
+                if (error.code === 'permission-denied') {
+                    updateConnectionStatus(`❌ Acesso negado! Verifique as regras do Firestore:<br>
+                        <code>allow read, write: if true;</code> na coleção "produto"`, 'error');
+                } else if (error.code === 'unavailable') {
+                    updateConnectionStatus('❌ Firestore indisponível. Verifique sua conexão com a internet.', 'error');
+                }
             }
         });
 
