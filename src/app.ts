@@ -51,7 +51,7 @@ class App {
       appId: (window as any).firebaseConfig?.appId || "CONFIGURE_SEU_APP_ID"
     };
 
-    // Validar se as configurações são válidas (não são placeholders temporários)
+    // Validar se as configurações são válidas
     const pendingCredentials = firebaseConfig.apiKey === "WEB_API_KEY_PENDENTE" ||
                               firebaseConfig.messagingSenderId === "SENDER_ID_PENDENTE" ||
                               firebaseConfig.appId === "APP_ID_PENDENTE";
@@ -60,7 +60,18 @@ class App {
                               firebaseConfig.projectId === "seu-projeto-id" ||
                               firebaseConfig.appId === "CONFIGURE_SEU_APP_ID";
 
-    if (pendingCredentials) {
+    const hasValidWebSdk = firebaseConfig.apiKey && 
+                          firebaseConfig.apiKey !== "WEB_API_KEY_PENDENTE" && 
+                          firebaseConfig.apiKey !== "CONFIGURE_SUA_API_KEY" &&
+                          firebaseConfig.appId && 
+                          firebaseConfig.appId !== "APP_ID_PENDENTE" && 
+                          firebaseConfig.appId !== "CONFIGURE_SEU_APP_ID";
+
+    if (hasValidWebSdk && configStatus?.webSdkComplete) {
+      console.log('🎉 Configuração Firebase completa detectada!');
+      console.log('✅ Web SDK + Service Account configurados');
+      console.log('🚀 Aplicação pronta para uso completo');
+    } else if (pendingCredentials) {
       console.warn('⏳ Usando configuração temporária com Service Account');
       console.log('🔧 Para funcionalidade completa do frontend, adicione Web SDK secrets');
     } else if (invalidCredentials) {

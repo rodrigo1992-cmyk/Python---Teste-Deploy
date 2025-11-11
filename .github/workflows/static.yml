@@ -57,28 +57,28 @@ jobs:
       - name: Create Firebase Web Config
         run: |
           cat > firebase-config.js << EOF
-          // firebase-config.js - Configuração temporária com Service Account
-          // ⚠️ ATENÇÃO: Esta é uma configuração temporária
+          // firebase-config.js - Gerado automaticamente pelo GitHub Actions
+          // ✅ Configuração completa com Web SDK + Service Account
           window.firebaseConfig = {
-              projectId: "${{ secrets.PROJECT_ID }}",
+              apiKey: "${{ secrets.FIREBASE_API_KEY }}",
               authDomain: "${{ secrets.PROJECT_ID }}.firebaseapp.com",
+              projectId: "${{ secrets.PROJECT_ID }}",
               storageBucket: "${{ secrets.PROJECT_ID }}.firebasestorage.app",
-              // Valores temporários - substitua pelos Web SDK secrets quando disponíveis
-              apiKey: "WEB_API_KEY_PENDENTE", 
-              messagingSenderId: "SENDER_ID_PENDENTE",
-              appId: "APP_ID_PENDENTE"
+              messagingSenderId: "${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}",
+              appId: "${{ secrets.FIREBASE_APP_ID }}"
           };
           
           // Status da configuração
           window.configStatus = {
               serviceAccountAvailable: true,
-              webSdkComplete: false,
+              webSdkComplete: true,
               projectId: "${{ secrets.PROJECT_ID }}",
-              message: "Service Account configurado. Adicione Web SDK secrets para funcionalidade completa."
+              message: "✅ Configuração completa! Web SDK + Service Account configurados."
           };
           
-          console.log('🔑 Firebase config carregado');
-          console.log('📋 Status:', window.configStatus.message);
+          console.log('🔑 Firebase Web SDK config carregado via GitHub Secrets');
+          console.log('✅ Configuração completa para frontend e backend');
+          console.log('📊 Project ID:', "${{ secrets.PROJECT_ID }}");
           EOF
       - name: Build TypeScript and CSS
         run: npm run build

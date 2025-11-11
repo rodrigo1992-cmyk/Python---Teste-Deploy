@@ -40,12 +40,20 @@ export class FirebaseServiceImpl implements FirebaseService {
       }
 
       // Validar configuração básica
-      if (!this.config.apiKey || this.config.apiKey === 'CONFIGURE_SUA_API_KEY') {
-        throw new Error('Configuração Firebase inválida. Verifique se os GitHub Secrets estão configurados.');
+      if (!this.config.apiKey || 
+          this.config.apiKey === 'CONFIGURE_SUA_API_KEY' || 
+          this.config.apiKey === 'WEB_API_KEY_PENDENTE') {
+        throw new Error('API Key Firebase inválida. Verifique se FIREBASE_API_KEY está configurado nos GitHub Secrets.');
       }
 
       if (!this.config.projectId || this.config.projectId === 'seu-projeto-id') {
-        throw new Error('Project ID não configurado. Configure FIREBASE_PROJECT_ID nos GitHub Secrets.');
+        throw new Error('Project ID não configurado. Configure PROJECT_ID nos GitHub Secrets.');
+      }
+
+      if (!this.config.appId || 
+          this.config.appId === 'CONFIGURE_SEU_APP_ID' || 
+          this.config.appId === 'APP_ID_PENDENTE') {
+        throw new Error('App ID Firebase inválido. Verifique se FIREBASE_APP_ID está configurado nos GitHub Secrets.');
       }
 
       window.firebase.initializeApp(this.config);
