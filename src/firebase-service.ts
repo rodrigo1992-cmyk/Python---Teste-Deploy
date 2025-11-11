@@ -118,7 +118,18 @@ export class FirebaseServiceImpl implements FirebaseService {
         },
         (error: any) => {
           console.error('❌ Erro no listener:', error);
-          this.updateStatus(`❌ Erro ao escutar mudanças: ${error.message}`, 'error');
+          
+          // Tratamento específico para erros de regras de segurança
+          if (error.code === 'permission-denied') {
+            this.updateStatus(
+              `❌ Acesso negado! Verifique as regras do Firestore:<br>
+              <code>allow read, write: if true;</code> na coleção "produto"<br>
+              📖 Consulte: Firebase Console → Firestore → Rules`, 
+              'error'
+            );
+          } else {
+            this.updateStatus(`❌ Erro ao escutar mudanças: ${error.message}`, 'error');
+          }
         }
       );
 
@@ -185,18 +196,26 @@ export class FirebaseServiceImpl implements FirebaseService {
       return { success: true, size: snapshot.size, docs };
     } catch (error: any) {
       console.error('❌ Erro no teste:', error);
-      this.updateStatus(`❌ Teste falhou: ${error.message}`, 'error');
-
-      // Sugestões baseadas no tipo de erro
+      
+      // Mensagens específicas por tipo de erro
+      let errorMessage = `❌ Teste falhou: ${error.message}`;
+      
       if (error.code === 'permission-denied') {
-        this.updateStatus(
-          `❌ Acesso negado! Verifique as regras do Firestore:<br><code>allow read, write: if true;</code> na coleção "produto"`,
-          'error'
-        );
+        errorMessage = `❌ Acesso negado! Configure as regras do Firestore:<br>
+          <strong>Firebase Console → Firestore → Rules</strong><br>
+          <code>match /produto/{document} {<br>
+          &nbsp;&nbsp;allow read, write: if true;<br>
+          }</code><br>
+          📖 Consulte: FIRESTORE_SECURITY_RULES.md`;
       } else if (error.code === 'unavailable') {
-        this.updateStatus('❌ Firestore indisponível. Verifique sua conexão com a internet.', 'error');
+        errorMessage = '❌ Firestore indisponível. Verifique sua conexão com a internet.';
+      } else if (error.code === 'unauthenticated') {
+        errorMessage = `❌ Erro de autenticação. Verifique as credenciais Firebase:<br>
+          • API Key: ${this.config.apiKey ? '✅ Configurada' : '❌ Faltando'}<br>
+          • Project ID: ${this.config.projectId ? '✅ Configurado' : '❌ Faltando'}`;
       }
-
+      
+      this.updateStatus(errorMessage, 'error');
       return { success: false, size: 0, docs: [] };
     }
   }
