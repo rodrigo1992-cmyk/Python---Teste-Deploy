@@ -17,14 +17,14 @@ class App {
   }
 
   private getAppConfig(): AppConfig {
-    // ⚠️ CONFIGURAÇÃO REMOVIDA POR SEGURANÇA
-    // Configure suas credenciais em firebase-config.js (não commitado)
+    // ⚠️ CONFIGURAÇÃO SEGURA VIA GITHUB SECRETS
+    // Configuração carregada de firebase-config.js (gerado via GitHub Actions)
     const firebaseConfig: FirebaseConfig = {
       apiKey: (window as any).firebaseConfig?.apiKey || "CONFIGURE_SUA_API_KEY",
-      authDomain: "gen-lang-client-0530296680.firebaseapp.com",
-      projectId: "gen-lang-client-0530296680",
-      storageBucket: "gen-lang-client-0530296680.firebasestorage.app",
-      messagingSenderId: "20277219870",
+      authDomain: (window as any).firebaseConfig?.authDomain || "seu-projeto.firebaseapp.com",
+      projectId: (window as any).firebaseConfig?.projectId || "seu-projeto-id",
+      storageBucket: (window as any).firebaseConfig?.storageBucket || "seu-projeto.firebasestorage.app",
+      messagingSenderId: (window as any).firebaseConfig?.messagingSenderId || "123456789",
       appId: (window as any).firebaseConfig?.appId || "CONFIGURE_SEU_APP_ID"
     };
 

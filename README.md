@@ -1,48 +1,44 @@
-# Projeto HTML + TypeScript + Firebase
+# Catálogo de Produtos - TypeScript + Firebase
 
-## ⚠️ IMPORTANTE - CONFIGURAÇÃO DE SEGURANÇA
+Uma aplicação moderna de catálogo de produtos desenvolvida com TypeScript, Firebase Firestore e deploy automático via GitHub Pages.
 
-### API Key Leaked - Ação Necessária
+## 🔐 Configuração Segura com GitHub Secrets
 
-2. **Gere uma nova API key** no Firebase Console:
-   - https://console.firebase.google.com/
-   - Project Settings > General > Web apps
-   - Copie as novas credenciais
+### Para Deploy Automático (Produção)
 
-3. **Configure o arquivo local** (NÃO commitado):
-   ```bash
-   cp firebase-config.js.example firebase-config.js
-   # Edite o arquivo com suas credenciais reais
-   ```
+Configure os seguintes secrets no GitHub:
+- Vá em `Settings` → `Secrets and variables` → `Actions` 
+- Adicione os 6 secrets listados abaixo:
+
+| Secret | Descrição |
+|---|---|
+| `FIREBASE_API_KEY` | Sua API key do Firebase |
+| `FIREBASE_AUTH_DOMAIN` | Domínio de autenticação |
+| `FIREBASE_PROJECT_ID` | ID do projeto Firebase |
+| `FIREBASE_STORAGE_BUCKET` | Bucket de armazenamento |
+| `FIREBASE_MESSAGING_SENDER_ID` | ID do remetente de mensagens |
+| `FIREBASE_APP_ID` | ID da aplicação |
+
+### Para Desenvolvimento Local
+
+Configure o arquivo `firebase-config.js` com suas credenciais:
+```javascript
+window.firebaseConfig = {
+    apiKey: "sua-api-key-aqui",
+    authDomain: "seu-projeto.firebaseapp.com",
+    projectId: "seu-projeto-id",
+    // ... outras configurações
+};
+```
 
 ## Estrutura do Projeto
 
 - `index.html` - Página principal com navegação
 - `produtos-firestore.html` - Versão JavaScript + Firebase
 - `produtos-typescript.html` - Versão TypeScript + Firebase
-- `teste-firebase.html` - Página de teste de conexão Firebase
 - `src/` - Código TypeScript modular
 - `dist/` - JavaScript compilado
 - `firebase-config.js` - **Configuração local (não commitado)**
-
-## 🔐 Configuração de Secrets (Produção)
-
-Para deploy automático no GitHub Pages:
-
-1. **Configure os secrets do GitHub** (obrigatório):
-   - Vá em: `Settings` → `Secrets and variables` → `Actions`
-   - Adicione os 6 secrets listados em `GITHUB-SECRETS-SETUP.md`
-
-2. **Ou use o script automatizado**:
-   ```powershell
-   # Se tiver GitHub CLI instalado
-   .\setup-github-secrets.ps1
-   ```
-
-3. **Deploy automático**:
-   - O GitHub Actions gera `firebase-config.js` automaticamente
-   - Usa os secrets para configuração segura
-   - Deploy em: `https://rodrigo1992-cmyk.github.io/Python---Teste-Deploy/`
 
 ## Comandos de Build
 
@@ -73,23 +69,13 @@ git push -u origin main
 
 URL: `https://<seu-usuario>.github.io/<nome-do-repositorio>/`
 
-## 🔒 Segurança
+## Segurança
 
-### Desenvolvimento Local:
-- ✅ Credenciais em arquivo local não-commitado
+- ✅ Credenciais movidas para arquivo local
 - ✅ `.gitignore` configurado
-- ✅ Template de exemplo criado
-
-### Produção (GitHub Pages):
-- ✅ **GitHub Secrets** - credenciais protegidas
-- ✅ **Build automático** - configuração gerada via CI/CD
-- ✅ **Sem exposição** - secrets nunca aparecem no código
-
-### Estrutura de Segurança:
-- **Local**: `firebase-config.js` (não commitado)
-- **Produção**: GitHub Secrets → build automático
-- **Template**: `firebase-config.js.example` (público)
+- ✅ Arquivo exemplo criado
+- ❌ **API key ainda precisa ser revogada/regenerada**
 
 ---
 
-**Status**: � Configure os GitHub Secrets para deploy automático
+**Status**: 🔴 Aguardando rotação de credenciais do usuário
