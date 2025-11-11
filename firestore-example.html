@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML + Firestore - Exemplo GCP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#0ea5a4' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-brand mb-2">HTML + Google Firestore</h1>
+            <p class="text-gray-600">Exemplo de leitura e escrita de dados JSON no GCP</p>
+        </header>
+
+        <!-- Seção de Configuração -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">🔧 Configuração do Firebase</h2>
+            <div class="bg-yellow-50 border border-yellow-200 rounded p-4 mb-4">
+                <p class="text-sm text-yellow-800">
+                    <strong>Para usar:</strong> substitua as configurações abaixo pelos valores do seu projeto Firebase
+                </p>
+            </div>
+            <pre class="bg-gray-100 p-3 rounded text-sm overflow-x-auto"><code>// Suas configurações Firebase (firebase-config.js)
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project-id", 
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "your-app-id"
+};</code></pre>
+        </div>
+
+        <!-- Seção de Demo -->
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Adicionar Dados -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-4">➕ Adicionar Dados</h3>
+                <form id="addForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Nome:</label>
+                        <input type="text" id="nome" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Email:</label>
+                        <input type="email" id="email" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Dados JSON:</label>
+                        <textarea id="jsonData" class="w-full border rounded px-3 py-2 h-20" 
+                                  placeholder='{"cidade": "São Paulo", "idade": 30}'></textarea>
+                    </div>
+                    <button type="submit" 
+                            class="w-full bg-brand text-white py-2 rounded hover:bg-opacity-90">
+                        Salvar no Firestore
+                    </button>
+                </form>
+            </div>
+
+            <!-- Listar Dados -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-4">📋 Dados Salvos</h3>
+                <button id="loadBtn" 
+                        class="w-full bg-blue-500 text-white py-2 rounded mb-4 hover:bg-blue-600">
+                    Carregar do Firestore
+                </button>
+                <div id="dataList" class="space-y-2">
+                    <p class="text-gray-500 text-sm">Clique em "Carregar" para ver os dados</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="mt-6 p-4 rounded hidden"></div>
+
+        <!-- Instruções -->
+        <div class="bg-white rounded-lg shadow p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-4">📝 Passos para Configurar</h3>
+            <ol class="list-decimal list-inside space-y-2 text-sm">
+                <li>Acesse <a href="https://console.firebase.google.com" class="text-blue-600 underline">Firebase Console</a></li>
+                <li>Crie um novo projeto ou use um existente</li>
+                <li>Ative o Firestore Database (modo teste inicialmente)</li>
+                <li>Vá em Configurações do Projeto → Configuração do SDK</li>
+                <li>Copie as configurações e substitua no arquivo <code class="bg-gray-100 px-1">firebase-config.js</code></li>
+                <li>Configure as regras do Firestore para permitir leitura/escrita</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase (versão 9+)
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, serverTimestamp } 
+               from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // SUBSTITUA pelas suas configurações Firebase
+        const firebaseConfig = {
+            // Suas configurações aqui (obtidas no Firebase Console)
+            apiKey: "demo-key",
+            authDomain: "demo.firebaseapp.com", 
+            projectId: "demo-project",
+            // ... outras configs
+        };
+
+        // Inicializar Firebase (descomente quando tiver as configurações reais)
+        // const app = initializeApp(firebaseConfig);
+        // const db = getFirestore(app);
+
+        // Elementos DOM
+        const addForm = document.getElementById('addForm');
+        const loadBtn = document.getElementById('loadBtn');
+        const dataList = document.getElementById('dataList');
+        const status = document.getElementById('status');
+
+        function showStatus(message, type = 'info') {
+            status.className = `mt-6 p-4 rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            status.textContent = message;
+            status.classList.remove('hidden');
+        }
+
+        // Adicionar dados
+        addForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Para demonstração (sem Firebase conectado)
+            showStatus('⚠️ Configure o Firebase primeiro! Exemplo de dados que seriam salvos:', 'info');
+            
+            const nome = document.getElementById('nome').value;
+            const email = document.getElementById('email').value;
+            const jsonData = document.getElementById('jsonData').value;
+            
+            const dados = {
+                nome,
+                email,
+                dadosPersonalizados: jsonData ? JSON.parse(jsonData || '{}') : {},
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Dados que seriam salvos:', dados);
+            
+            /* 
+            // Código real (descomente quando configurar Firebase):
+            try {
+                const docRef = await addDoc(collection(db, "usuarios"), {
+                    nome,
+                    email, 
+                    dadosPersonalizados: jsonData ? JSON.parse(jsonData || '{}') : {},
+                    timestamp: serverTimestamp()
+                });
+                showStatus(`✅ Dados salvos! ID: ${docRef.id}`, 'success');
+                addForm.reset();
+            } catch (error) {
+                showStatus(`❌ Erro: ${error.message}`, 'error');
+            }
+            */
+        });
+
+        // Carregar dados
+        loadBtn.addEventListener('click', async () => {
+            showStatus('⚠️ Configure o Firebase primeiro!', 'info');
+            
+            // Dados de exemplo (sem Firebase conectado)
+            const exemplosDados = [
+                { id: '1', nome: 'João Silva', email: 'joao@email.com', dadosPersonalizados: { cidade: 'SP', idade: 30 }},
+                { id: '2', nome: 'Maria Santos', email: 'maria@email.com', dadosPersonalizados: { cidade: 'RJ', idade: 25 }}
+            ];
+            
+            displayData(exemplosDados);
+            
+            /*
+            // Código real (descomente quando configurar Firebase):
+            try {
+                const querySnapshot = await getDocs(collection(db, "usuarios"));
+                const dados = [];
+                querySnapshot.forEach((doc) => {
+                    dados.push({ id: doc.id, ...doc.data() });
+                });
+                displayData(dados);
+                showStatus(`✅ ${dados.length} registros carregados`, 'success');
+            } catch (error) {
+                showStatus(`❌ Erro ao carregar: ${error.message}`, 'error');
+            }
+            */
+        });
+
+        function displayData(dados) {
+            if (dados.length === 0) {
+                dataList.innerHTML = '<p class="text-gray-500 text-sm">Nenhum dado encontrado</p>';
+                return;
+            }
+            
+            dataList.innerHTML = dados.map(item => `
+                <div class="border rounded p-3 bg-gray-50">
+                    <strong>${item.nome}</strong> (${item.email})
+                    <div class="text-sm text-gray-600 mt-1">
+                        JSON: <code>${JSON.stringify(item.dadosPersonalizados || {})}</code>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
