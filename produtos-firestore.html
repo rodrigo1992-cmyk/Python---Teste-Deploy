@@ -101,19 +101,21 @@
     <!-- Firebase SDK v9 - Compatível com GitHub Pages -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Configuração Firebase (arquivo local não commitado) -->
+    <script src="./firebase-config.js"></script>
+    
     <script>
         // Usar Firebase v9 compat (sintaxe clássica) para GitHub Pages
 
-        // ⚠️ CONFIGURAÇÃO REMOVIDA POR SEGURANÇA
-        // Configure suas credenciais Firebase em firebase-config.js
-        const firebaseConfig = {
-            apiKey: "CONFIGURE_SUA_API_KEY",
-            authDomain: "gen-lang-client-0530296680.firebaseapp.com",
-            projectId: "gen-lang-client-0530296680",
-            storageBucket: "gen-lang-client-0530296680.firebasestorage.app",
-            messagingSenderId: "20277219870",
-            appId: "CONFIGURE_SEU_APP_ID"
-        };
+        // Configuração carregada do arquivo firebase-config.js
+        const firebaseConfig = window.firebaseConfig;
+        
+        if (!firebaseConfig) {
+            console.error('❌ Configuração Firebase não encontrada!');
+            console.log('👉 Crie o arquivo firebase-config.js com suas credenciais');
+            alert('Erro: Configuração Firebase não encontrada. Verifique o arquivo firebase-config.js');
+        }
 
         // Inicializar Firebase (sintaxe compatível)
         let app, db;

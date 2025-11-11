@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Firebase - Configuração Segura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold mb-4">🧪 Teste de Conexão Firebase</h1>
+            
+            <div id="status" class="mb-4 p-4 rounded">
+                <p>⏳ Carregando configuração...</p>
+            </div>
+            
+            <div id="config-info" class="bg-gray-100 p-4 rounded mb-4">
+                <h3 class="font-semibold mb-2">📋 Informações da Configuração:</h3>
+                <div id="config-details"></div>
+            </div>
+            
+            <div id="test-results" class="space-y-2">
+                <!-- Resultados dos testes aparecerão aqui -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Configuração -->
+    <script src="./firebase-config.js"></script>
+    
+    <script>
+        const statusDiv = document.getElementById('status');
+        const configDiv = document.getElementById('config-details');
+        const resultsDiv = document.getElementById('test-results');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = `p-2 rounded text-sm ${
+                type === 'error' ? 'bg-red-100 text-red-800' : 
+                type === 'success' ? 'bg-green-100 text-green-800' : 
+                'bg-blue-100 text-blue-800'
+            }`;
+            div.textContent = message;
+            resultsDiv.appendChild(div);
+        }
+        
+        async function testarConexao() {
+            try {
+                // 1. Verificar se a configuração foi carregada
+                if (!window.firebaseConfig) {
+                    throw new Error('Configuração Firebase não encontrada');
+                }
+                
+                const config = window.firebaseConfig;
+                log('✅ Configuração Firebase carregada', 'success');
+                
+                // Mostrar informações da configuração (sem a API key)
+                configDiv.innerHTML = `
+                    <p><strong>Projeto:</strong> ${config.projectId}</p>
+                    <p><strong>Auth Domain:</strong> ${config.authDomain}</p>
+                    <p><strong>Storage Bucket:</strong> ${config.storageBucket}</p>
+                    <p><strong>API Key:</strong> ${config.apiKey.substring(0, 8)}...</p>
+                `;
+                
+                // 2. Inicializar Firebase
+                const app = firebase.initializeApp(config);
+                log('✅ Firebase inicializado', 'success');
+                
+                // 3. Conectar ao Firestore
+                const db = firebase.firestore();
+                log('✅ Firestore conectado', 'success');
+                
+                // 4. Tentar ler uma coleção
+                const snapshot = await db.collection('produto').limit(1).get();
+                log(`✅ Teste de leitura: ${snapshot.size} documento(s) encontrado(s)`, 'success');
+                
+                statusDiv.innerHTML = '<p class="text-green-600 font-semibold">🎉 Todos os testes passaram!</p>';
+                
+            } catch (error) {
+                log(`❌ Erro: ${error.message}`, 'error');
+                statusDiv.innerHTML = `<p class="text-red-600 font-semibold">💥 Falha nos testes: ${error.message}</p>`;
+            }
+        }
+        
+        // Executar teste quando a página carregar
+        window.addEventListener('load', testarConexao);
+    </script>
+</body>
+</html>
