@@ -9,6 +9,11 @@ firebase-config.js
 *.key
 *.secret
 
+# Jupyter Notebooks com credenciais
+firebase-test.ipynb
+test-*.ipynb
+*-local.ipynb
+
 # Node.js
 node_modules/
 npm-debug.log*
