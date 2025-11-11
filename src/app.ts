@@ -25,8 +25,21 @@ class App {
       console.error('❌ Arquivo firebase-config.js não encontrado!');
       console.log('📝 Para resolver:');
       console.log('1. Configure os GitHub Secrets no repositório');
-      console.log('2. Faça push para ativar GitHub Actions');
+      console.log('2. Faça push para ativar GitHub Actions'); 
       console.log('3. Verifique se o deploy foi executado com sucesso');
+    }
+
+    // Verificar status da configuração
+    const configStatus = (window as any).configStatus;
+    if (configStatus) {
+      console.log('📊 Status da configuração:', configStatus.message);
+      if (configStatus.serviceAccountAvailable && !configStatus.webSdkComplete) {
+        console.warn('⚠️ Service Account configurado, mas Web SDK secrets estão incompletos');
+        console.log('🔧 Para funcionalidade completa, adicione estes GitHub Secrets:');
+        console.log('• FIREBASE_API_KEY (Web API Key do Firebase Console)');
+        console.log('• FIREBASE_MESSAGING_SENDER_ID (Sender ID do Firebase Console)');
+        console.log('• FIREBASE_APP_ID (App ID do Firebase Console)');
+      }
     }
 
     const firebaseConfig: FirebaseConfig = {
@@ -38,20 +51,21 @@ class App {
       appId: (window as any).firebaseConfig?.appId || "CONFIGURE_SEU_APP_ID"
     };
 
-    // Validar se as configurações são válidas (não são placeholders)
-    const isValidConfig = firebaseConfig.apiKey !== "CONFIGURE_SUA_API_KEY" &&
-                         firebaseConfig.projectId !== "seu-projeto-id" &&
-                         firebaseConfig.appId !== "CONFIGURE_SEU_APP_ID";
+    // Validar se as configurações são válidas (não são placeholders temporários)
+    const pendingCredentials = firebaseConfig.apiKey === "WEB_API_KEY_PENDENTE" ||
+                              firebaseConfig.messagingSenderId === "SENDER_ID_PENDENTE" ||
+                              firebaseConfig.appId === "APP_ID_PENDENTE";
 
-    if (!isValidConfig) {
+    const invalidCredentials = firebaseConfig.apiKey === "CONFIGURE_SUA_API_KEY" ||
+                              firebaseConfig.projectId === "seu-projeto-id" ||
+                              firebaseConfig.appId === "CONFIGURE_SEU_APP_ID";
+
+    if (pendingCredentials) {
+      console.warn('⏳ Usando configuração temporária com Service Account');
+      console.log('🔧 Para funcionalidade completa do frontend, adicione Web SDK secrets');
+    } else if (invalidCredentials) {
       console.warn('⚠️ Configurações Firebase parecem ser placeholders!');
-      console.log('🔧 Verifique se os GitHub Secrets estão configurados corretamente:');
-      console.log('• FIREBASE_API_KEY');
-      console.log('• FIREBASE_AUTH_DOMAIN');
-      console.log('• FIREBASE_PROJECT_ID');
-      console.log('• FIREBASE_STORAGE_BUCKET');
-      console.log('• FIREBASE_MESSAGING_SENDER_ID');
-      console.log('• FIREBASE_APP_ID');
+      console.log('🔧 Verifique se os GitHub Secrets estão configurados corretamente');
     }
 
     return {
