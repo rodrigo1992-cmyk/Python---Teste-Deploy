@@ -9,6 +9,12 @@ firebase-config.js
 *.key
 *.secret
 
+# Firebase Service Account
+firebase-service-account.json
+*service-account*.json
+*firebase-adminsdk*.json
+gen-lang-client-0530296680-firebase-adminsdk-fbsvc-17ba31908f.json
+
 # Jupyter Notebooks com credenciais
 firebase-test.ipynb
 test-*.ipynb
