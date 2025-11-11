@@ -37,8 +37,8 @@ jobs:
           node-version: '18'
       - name: Install dependencies
         run: npm install
-      - name: Build Tailwind CSS
-        run: npm run build:css
+      - name: Build TypeScript and CSS
+        run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

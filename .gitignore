@@ -16,6 +16,10 @@ package-lock.json
 dist/
 build/
 assets/styles.css
+*.js.map
+
+# TypeScript
+*.tsbuildinfo
 
 # Sistema operacional
 .DS_Store

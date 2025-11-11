@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - TypeScript + Firestore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#0ea5a4' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-brand mb-2">🛍️ Catálogo de Produtos (TypeScript)</h1>
+            <p class="text-gray-600">Conectado ao Firestore - Projeto: gen-lang-client-0530296680</p>
+            <div class="mt-2">
+                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                    🔷 TypeScript
+                </span>
+                <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full ml-2">
+                    🔥 Firebase v9
+                </span>
+            </div>
+        </header>
+
+        <!-- Status de Conexão -->
+        <div id="connectionStatus" class="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+            <p class="text-blue-800">🔄 Conectando ao Firestore...</p>
+        </div>
+
+        <!-- Seção de Produtos -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">📦 Produtos Cadastrados</h2>
+                <div class="flex gap-2">
+                    <button id="testConnectionBtn" 
+                            class="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 text-sm">
+                        🔍 Testar Conexão
+                    </button>
+                    <button id="reloadBtn" 
+                            class="bg-brand text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center gap-2">
+                        <span id="reloadIcon">🔄</span> Recarregar
+                    </button>
+                </div>
+            </div>
+            
+            <div id="productsList" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                    <p>⏳ Carregando produtos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adicionar Novo Produto -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">➕ Adicionar Produto</h3>
+            <form id="addProductForm" class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Categoria:</label>
+                    <input type="text" id="categoria" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: televisao, celular" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Produto:</label>
+                    <input type="text" id="produto" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: Televisor Samsung" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Preço:</label>
+                    <input type="text" id="preco" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: 1500" required>
+                </div>
+                <div class="md:col-span-3">
+                    <button type="submit" 
+                            class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                        💾 Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Estatísticas -->
+        <div id="stats" class="mt-6 grid md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-brand" id="totalCount">-</div>
+                <div class="text-sm text-gray-600">Total de Produtos</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-green-600" id="categoryCount">-</div>
+                <div class="text-sm text-gray-600">Categorias</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600" id="avgPrice">-</div>
+                <div class="text-sm text-gray-600">Preço Médio</div>
+            </div>
+        </div>
+
+        <!-- Informações Técnicas -->
+        <div class="mt-6 bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">🔧 Informações Técnicas</h3>
+            <div class="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <h4 class="font-medium mb-2">Tecnologias:</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• TypeScript (tipos estáticos)</li>
+                        <li>• Firebase v9 (compat mode)</li>
+                        <li>• Tailwind CSS</li>
+                        <li>• Modular architecture</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium mb-2">Recursos:</h4>
+                    <ul class="space-y-1 text-gray-600">
+                        <li>• Tempo real (real-time updates)</li>
+                        <li>• Tratamento de erros tipado</li>
+                        <li>• Interfaces bem definidas</li>
+                        <li>• Deploy automático no GitHub Pages</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK - Compatível com GitHub Pages -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <!-- TypeScript compilado -->
+    <script type="module" src="./dist/app.js"></script>
+</body>
+</html>
