@@ -19,6 +19,16 @@ class App {
   private getAppConfig(): AppConfig {
     // ⚠️ CONFIGURAÇÃO SEGURA VIA GITHUB SECRETS
     // Configuração carregada de firebase-config.js (gerado via GitHub Actions)
+    
+    // Verificar se o arquivo de configuração foi carregado
+    if (!(window as any).firebaseConfig) {
+      console.error('❌ Arquivo firebase-config.js não encontrado!');
+      console.log('📝 Para resolver:');
+      console.log('1. Configure os GitHub Secrets no repositório');
+      console.log('2. Faça push para ativar GitHub Actions');
+      console.log('3. Verifique se o deploy foi executado com sucesso');
+    }
+
     const firebaseConfig: FirebaseConfig = {
       apiKey: (window as any).firebaseConfig?.apiKey || "CONFIGURE_SUA_API_KEY",
       authDomain: (window as any).firebaseConfig?.authDomain || "seu-projeto.firebaseapp.com",
@@ -27,6 +37,22 @@ class App {
       messagingSenderId: (window as any).firebaseConfig?.messagingSenderId || "123456789",
       appId: (window as any).firebaseConfig?.appId || "CONFIGURE_SEU_APP_ID"
     };
+
+    // Validar se as configurações são válidas (não são placeholders)
+    const isValidConfig = firebaseConfig.apiKey !== "CONFIGURE_SUA_API_KEY" &&
+                         firebaseConfig.projectId !== "seu-projeto-id" &&
+                         firebaseConfig.appId !== "CONFIGURE_SEU_APP_ID";
+
+    if (!isValidConfig) {
+      console.warn('⚠️ Configurações Firebase parecem ser placeholders!');
+      console.log('🔧 Verifique se os GitHub Secrets estão configurados corretamente:');
+      console.log('• FIREBASE_API_KEY');
+      console.log('• FIREBASE_AUTH_DOMAIN');
+      console.log('• FIREBASE_PROJECT_ID');
+      console.log('• FIREBASE_STORAGE_BUCKET');
+      console.log('• FIREBASE_MESSAGING_SENDER_ID');
+      console.log('• FIREBASE_APP_ID');
+    }
 
     return {
       firebase: firebaseConfig,

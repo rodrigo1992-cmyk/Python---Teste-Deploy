@@ -34,8 +34,18 @@ export class FirebaseServiceImpl implements FirebaseService {
         authDomain: this.config.authDomain
       });
 
+      // Verificar se o SDK foi carregado
       if (!window.firebase) {
-        throw new Error('Firebase SDK não carregado');
+        throw new Error('Firebase SDK não carregado. Verifique se os scripts Firebase estão incluídos no HTML.');
+      }
+
+      // Validar configuração básica
+      if (!this.config.apiKey || this.config.apiKey === 'CONFIGURE_SUA_API_KEY') {
+        throw new Error('Configuração Firebase inválida. Verifique se os GitHub Secrets estão configurados.');
+      }
+
+      if (!this.config.projectId || this.config.projectId === 'seu-projeto-id') {
+        throw new Error('Project ID não configurado. Configure FIREBASE_PROJECT_ID nos GitHub Secrets.');
       }
 
       window.firebase.initializeApp(this.config);
@@ -50,7 +60,17 @@ export class FirebaseServiceImpl implements FirebaseService {
       await this.loadProducts();
     } catch (error) {
       console.error('❌ Erro na inicialização do Firebase:', error);
-      this.updateStatus(`❌ Erro na conexão: ${(error as Error).message}`, 'error');
+      
+      // Mensagens específicas baseadas no tipo de erro
+      let errorMessage = `❌ Erro na conexão: ${(error as Error).message}`;
+      
+      if ((error as Error).message.includes('GitHub Secrets')) {
+        errorMessage += '<br>🔧 Consulte: https://github.com/settings/tokens';
+      } else if ((error as Error).message.includes('Project ID')) {
+        errorMessage += '<br>📝 Configure os secrets no repositório GitHub';
+      }
+      
+      this.updateStatus(errorMessage, 'error');
       throw error;
     }
   }
