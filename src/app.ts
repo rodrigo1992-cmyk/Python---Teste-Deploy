@@ -116,6 +116,7 @@ class App {
     try {
       this.uiService.showLoading(true);
       await this.firebaseService.connect();
+      this.checkConfiguration();
     } catch (error) {
       console.error('Erro na inicialização:', error);
       this.uiService.showError(`Erro na inicialização: ${(error as Error).message}`);
