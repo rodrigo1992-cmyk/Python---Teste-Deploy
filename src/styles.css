@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles */
+:root{
+  --brand: #0ea5a4;
+}
+
+.container-max{max-width:900px}
+
+/* Example small utility */
+.site-footer{color:theme('colors.gray.500');font-size:.9rem}

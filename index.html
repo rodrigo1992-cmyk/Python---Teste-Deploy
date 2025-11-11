@@ -5,22 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teste Deploy - GitHub Pages</title>
 
-    <!-- Tailwind CSS via CDN (rápido para protótipos) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Configuração simples do Tailwind (ex.: cor da marca)
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              brand: '#0ea5a4'
-            }
-          }
-        }
-      }
-    </script>
+    <!-- Compiled Tailwind CSS (gerado pelo build) -->
+    <link rel="stylesheet" href="/assets/styles.css" />
 
-    <!-- CSS customizado (pequenas regras complementares) -->
+    <!-- Small fallback styles while compiled CSS is missing -->
     <style>
       .container-max { max-width: 900px; }
       pre { background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow: auto; }
