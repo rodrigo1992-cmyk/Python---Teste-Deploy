@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Firestore Connection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#0ea5a4' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-brand mb-2">🛍️ Catálogo de Produtos</h1>
+            <p class="text-gray-600">Conectado ao Firestore - Projeto: gen-lang-client-0530296680</p>
+        </header>
+
+        <!-- Status de Conexão -->
+        <div id="connectionStatus" class="mb-6 p-4 rounded-lg bg-blue-50 border border-blue-200">
+            <p class="text-blue-800">🔄 Conectando ao Firestore...</p>
+        </div>
+
+        <!-- Seção de Produtos -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">📦 Produtos Cadastrados</h2>
+                <button id="reloadBtn" 
+                        class="bg-brand text-white px-4 py-2 rounded hover:bg-opacity-90 flex items-center gap-2">
+                    <span id="reloadIcon">🔄</span> Recarregar
+                </button>
+            </div>
+            
+            <div id="productsList" class="space-y-4">
+                <div class="text-center py-8 text-gray-500">
+                    <p>Carregando produtos...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adicionar Novo Produto -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">➕ Adicionar Produto</h3>
+            <form id="addProductForm" class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Categoria:</label>
+                    <input type="text" id="categoria" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: televisao, celular" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Produto:</label>
+                    <input type="text" id="produto" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: Televisor Samsung" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Preço:</label>
+                    <input type="text" id="preco" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="ex: 1500" required>
+                </div>
+                <div class="md:col-span-3">
+                    <button type="submit" 
+                            class="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">
+                        💾 Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Estatísticas -->
+        <div id="stats" class="mt-6 grid md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-brand" id="totalCount">-</div>
+                <div class="text-sm text-gray-600">Total de Produtos</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-green-600" id="categoryCount">-</div>
+                <div class="text-sm text-gray-600">Categorias</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600" id="avgPrice">-</div>
+                <div class="text-sm text-gray-600">Preço Médio</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK v9
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs, 
+            addDoc, 
+            onSnapshot,
+            serverTimestamp 
+        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Configuração do Firebase (suas credenciais reais)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGfp7mVx5xvwg6iRPVQL2Y5naPiYzFwT0",
+            authDomain: "gen-lang-client-0530296680.firebaseapp.com",
+            projectId: "gen-lang-client-0530296680",
+            storageBucket: "gen-lang-client-0530296680.firebasestorage.app",
+            messagingSenderId: "20277219870",
+            appId: "1:20277219870:web:0c64475e656f6e7aa2140f"
+        };
+
+        // Inicializar Firebase
+        let app, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            updateConnectionStatus('✅ Conectado ao Firestore', 'success');
+            loadProducts();
+        } catch (error) {
+            updateConnectionStatus('❌ Erro na conexão: ' + error.message, 'error');
+            console.error('Erro Firebase:', error);
+        }
+
+        // Elementos DOM
+        const productsList = document.getElementById('productsList');
+        const addProductForm = document.getElementById('addProductForm');
+        const reloadBtn = document.getElementById('reloadBtn');
+        const connectionStatus = document.getElementById('connectionStatus');
+
+        // Atualizar status de conexão
+        function updateConnectionStatus(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-50 border-green-200 text-green-800',
+                error: 'bg-red-50 border-red-200 text-red-800',
+                info: 'bg-blue-50 border-blue-200 text-blue-800'
+            };
+            connectionStatus.className = `mb-6 p-4 rounded-lg border ${colors[type]}`;
+            connectionStatus.innerHTML = `<p>${message}</p>`;
+        }
+
+        // Carregar produtos do Firestore
+        async function loadProducts() {
+            try {
+                // Listener em tempo real
+                const unsubscribe = onSnapshot(collection(db, "produto"), (querySnapshot) => {
+                    const produtos = [];
+                    querySnapshot.forEach((doc) => {
+                        produtos.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    displayProducts(produtos);
+                    updateStats(produtos);
+                });
+
+                // Armazenar unsubscribe para limpeza se necessário
+                window.firestoreUnsubscribe = unsubscribe;
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                updateConnectionStatus('❌ Erro ao carregar produtos: ' + error.message, 'error');
+                productsList.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <p>❌ Erro ao carregar produtos</p>
+                        <p class="text-sm mt-2">${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Exibir produtos na interface
+        function displayProducts(produtos) {
+            if (produtos.length === 0) {
+                productsList.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p>📦 Nenhum produto encontrado</p>
+                        <p class="text-sm mt-2">Adicione o primeiro produto usando o formulário abaixo</p>
+                    </div>
+                `;
+                return;
+            }
+
+            productsList.innerHTML = produtos.map(produto => `
+                <div class="bg-gray-50 rounded-lg p-4 border hover:shadow-md transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-lg text-gray-800">${produto.produto || 'Produto sem nome'}</h3>
+                            <p class="text-gray-600 capitalize">
+                                🏷️ ${produto.categoria || 'Categoria não informada'}
+                            </p>
+                            <p class="text-brand font-semibold mt-1">
+                                💰 R$ ${produto.preco || '0'}
+                            </p>
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            ID: ${produto.id}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Atualizar estatísticas
+        function updateStats(produtos) {
+            const totalCount = produtos.length;
+            const categorias = [...new Set(produtos.map(p => p.categoria).filter(Boolean))];
+            const precos = produtos.map(p => parseFloat(p.preco || 0)).filter(p => p > 0);
+            const avgPrice = precos.length > 0 ? (precos.reduce((a, b) => a + b, 0) / precos.length).toFixed(0) : 0;
+
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('categoryCount').textContent = categorias.length;
+            document.getElementById('avgPrice').textContent = avgPrice > 0 ? `R$ ${avgPrice}` : 'R$ 0';
+        }
+
+        // Adicionar novo produto
+        addProductForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const categoria = document.getElementById('categoria').value.trim();
+            const produto = document.getElementById('produto').value.trim();
+            const preco = document.getElementById('preco').value.trim();
+
+            if (!categoria || !produto || !preco) {
+                alert('⚠️ Preencha todos os campos');
+                return;
+            }
+
+            try {
+                const docRef = await addDoc(collection(db, "produto"), {
+                    categoria: categoria.toLowerCase(),
+                    produto: produto,
+                    preco: preco,
+                    timestamp: serverTimestamp()
+                });
+
+                updateConnectionStatus(`✅ Produto "${produto}" adicionado com sucesso! ID: ${docRef.id}`, 'success');
+                addProductForm.reset();
+
+            } catch (error) {
+                console.error('Erro ao adicionar produto:', error);
+                updateConnectionStatus('❌ Erro ao adicionar produto: ' + error.message, 'error');
+            }
+        });
+
+        // Botão recarregar
+        reloadBtn.addEventListener('click', () => {
+            const icon = document.getElementById('reloadIcon');
+            icon.textContent = '⏳';
+            setTimeout(() => {
+                loadProducts();
+                icon.textContent = '🔄';
+            }, 500);
+        });
+
+        // Aviso sobre configuração
+        setTimeout(() => {
+            if (!db) {
+                updateConnectionStatus(`
+                    ⚠️ <strong>Configuração necessária:</strong><br>
+                    1. Substitua a apiKey e appId pelas suas configurações do Firebase<br>
+                    2. Configure as regras do Firestore para permitir leitura/escrita<br>
+                    3. Verifique se a coleção "produto" existe no Firestore
+                `, 'error');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
