@@ -4,29 +4,48 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Teste Deploy - GitHub Pages</title>
+
+    <!-- Tailwind CSS via CDN (rápido para protótipos) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configuração simples do Tailwind (ex.: cor da marca)
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: '#0ea5a4'
+            }
+          }
+        }
+      }
+    </script>
+
+    <!-- CSS customizado (pequenas regras complementares) -->
     <style>
-      body { font-family: Arial, Helvetica, sans-serif; max-width: 800px; margin: 48px auto; padding: 0 16px; color:#222 }
-      header { text-align:center; margin-bottom:24px }
-      pre { background:#f4f4f4; padding:12px; border-radius:6px; overflow:auto }
+      .container-max { max-width: 900px; }
+      pre { background: #f3f4f6; padding: 1rem; border-radius: 0.5rem; overflow: auto; }
     </style>
   </head>
-  <body>
-    <header>
-      <h1>Teste Deploy - GitHub Pages</h1>
-      <p>Esta é uma página de exemplo para testar o deploy no GitHub Pages.</p>
-    </header>
+  <body class="bg-gray-50 text-gray-800">
+    <div class="container container-max mx-auto px-4 py-12">
+      <header class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-brand mb-2">Teste Deploy - GitHub Pages</h1>
+        <p class="text-gray-600">Esta é uma página de exemplo para testar o deploy no GitHub Pages.</p>
+      </header>
 
-    <section>
-      <h2>Como usar</h2>
-      <p>Este repositório foi preparado para publicar a pasta raiz no GitHub Pages via GitHub Actions. Faça push para a branch <code>main</code> e a Action irá publicar automaticamente.</p>
-      <h3>URL pública esperada</h3>
-      <p>Após o primeiro deploy, a URL normalmente será:</p>
-      <pre>https://&lt;seu-usuario&gt;.github.io/&lt;nome-do-repositorio&gt;/</pre>
-      <p>Substitua <code>&lt;seu-usuario&gt;</code> e <code>&lt;nome-do-repositorio&gt;</code> conforme o repositório remoto.</p>
-    </section>
+      <section class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-semibold mb-3">Como usar</h2>
+        <p class="mb-4">Este repositório foi preparado para publicar a pasta raiz no GitHub Pages via GitHub Actions. Faça push para a branch <code class="bg-gray-100 px-1 rounded">main</code> e a Action irá publicar automaticamente.</p>
 
-    <footer style="margin-top:36px; color:#666; font-size:0.9rem">
-      Gerado automaticamente para testes de GitHub Pages.
-    </footer>
+        <h3 class="text-lg font-medium mb-2">URL pública esperada</h3>
+        <p class="mb-2">Após o primeiro deploy, a URL normalmente será:</p>
+        <pre class="text-sm">https://&lt;seu-usuario&gt;.github.io/&lt;nome-do-repositorio&gt;/</pre>
+        <p class="mt-4 text-sm text-gray-600">Substitua <code>&lt;seu-usuario&gt;</code> e <code>&lt;nome-do-repositorio&gt;</code> conforme o repositório remoto.</p>
+      </section>
+
+      <footer class="mt-8 text-center text-sm text-gray-500">
+        Gerado automaticamente para testes de GitHub Pages.
+      </footer>
+    </div>
   </body>
 </html>
