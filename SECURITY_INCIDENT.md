@@ -23,10 +23,6 @@ ACTIONS TAKEN:
    - README.md with security instructions
    - Clear steps for credential rotation
 
-COMPROMISED CREDENTIAL:
-----------------------
-API Key: AIzaSyDGfp7mVx5xvwg6iRPVQL2Y5naPiYzFwT0
-
 REQUIRED USER ACTIONS:
 ---------------------
 1. Revoke/Delete the compromised API key in Google Cloud Console

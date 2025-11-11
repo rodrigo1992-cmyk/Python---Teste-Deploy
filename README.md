@@ -4,11 +4,6 @@
 
 ### API Key Leaked - Ação Necessária
 
-1. **Revogue a API key comprometida** no Google Cloud Console:
-   - Acesse: https://console.cloud.google.com/apis/credentials
-   - Localize a key: `AIzaSyDGfp7mVx5xvwg6iRPVQL2Y5naPiYzFwT0`
-   - Delete ou restrinja o acesso
-
 2. **Gere uma nova API key** no Firebase Console:
    - https://console.firebase.google.com/
    - Project Settings > General > Web apps
