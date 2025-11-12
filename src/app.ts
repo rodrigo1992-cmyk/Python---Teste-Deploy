@@ -1,18 +1,25 @@
 import { FirebaseServiceImpl } from './firebase-service.js';
 import { UIServiceImpl } from './ui-service.js';
-import { AppConfig, FirebaseConfig } from './types.js';
+import { AuthServiceImpl } from './auth-service.js';
+import { AuthUI } from './auth-ui.js';
+import { AppConfig, FirebaseConfig, User } from './types.js';
 
 class App {
   private firebaseService: FirebaseServiceImpl;
   private uiService: UIServiceImpl;
+  private authService: AuthServiceImpl;
+  private authUI: AuthUI;
   private config: AppConfig;
 
   constructor() {
     this.config = this.getAppConfig();
     this.uiService = new UIServiceImpl();
     this.firebaseService = new FirebaseServiceImpl(this.config.firebase);
+    this.authService = new AuthServiceImpl();
+    this.authUI = new AuthUI(this.authService);
     
     this.setupFirebaseCallbacks();
+    this.setupAuthCallbacks();
     this.setupEventListeners();
   }
 
@@ -101,6 +108,21 @@ class App {
     );
   }
 
+  private setupAuthCallbacks(): void {
+    this.authUI.setAuthChangeCallback((user: User | null) => {
+      if (user) {
+        console.log('✅ Usuário autenticado, tentando conectar ao Firebase...');
+        this.connectToFirebase();
+      } else {
+        console.log('❌ Usuário não autenticado');
+        this.uiService.updateConnectionStatus({
+          message: '🔐 Faça login para acessar os dados com regras seguras',
+          type: 'info'
+        });
+      }
+    });
+  }
+
   private setupEventListeners(): void {
     // Form submission
     this.uiService.elements.addProductForm.addEventListener('submit', async (e) => {
@@ -163,15 +185,40 @@ class App {
     }, 500);
   }
 
-  public async initialize(): Promise<void> {
+  private async connectToFirebase(): Promise<void> {
     try {
       this.uiService.showLoading(true);
       await this.firebaseService.connect();
       this.checkConfiguration();
     } catch (error) {
-      console.error('Erro na inicialização:', error);
-      this.uiService.showError(`Erro na inicialização: ${(error as Error).message}`);
+      console.error('Erro na conexão Firebase:', error);
+      this.uiService.updateConnectionStatus({
+        message: `❌ Erro na conexão: ${(error as Error).message}`,
+        type: 'error'
+      });
+    } finally {
+      this.uiService.showLoading(false);
     }
+  }
+
+  public async initialize(): Promise<void> {
+    console.log('🚀 Inicializando aplicação...');
+    
+    // Para regras seguras (request.auth != null), aguarda autenticação
+    // Para regras abertas (if true), conecta imediatamente
+    
+    if (this.authService.isAuthenticated()) {
+      console.log('✅ Usuário já autenticado, conectando...');
+      await this.connectToFirebase();
+    } else {
+      console.log('⏳ Aguardando autenticação...');
+      this.uiService.updateConnectionStatus({
+        message: '🔐 Faça login para acessar os dados (regras seguras ativadas)',
+        type: 'info'
+      });
+    }
+    
+    this.checkConfiguration();
   }
 
   // Método para verificar se está configurado corretamente

@@ -83,10 +83,29 @@ service cloud.firestore {
 ## 💡 Recomendações
 
 ### Para Produção:
-- 🔒 Implemente autenticação Firebase Auth
-- 🛡️ Use regras baseadas em `request.auth`
+- 🔒 ✅ **Autenticação Firebase implementada** na aplicação
+- 🛡️ Use regras baseadas em `request.auth != null;`
 - 📊 Monitore uso e segurança
 - 🔄 Teste regras no simulador do Firebase
+
+## 🔄 **PASSOS PARA ATIVAR REGRAS SEGURAS**
+
+### 1. Alterar Regras no Firebase Console
+1. Firebase Console → Firestore → Rules
+2. Alterar para: `allow read, write: if request.auth != null;`
+3. Clicar em "Publish"
+
+### 2. ✅ Autenticação Já Implementada
+A aplicação já tem sistema de autenticação com:
+- 🔐 **Login anônimo** (mais rápido)
+- 📧 **Login com email/senha**
+- 📝 **Cadastro de novos usuários**
+- 🔄 **Estado de autenticação persistente**
+
+### 3. Como Funciona
+- **Antes do login**: Acesso negado (erro permission-denied)
+- **Após o login**: Acesso completo aos dados
+- **Interface**: Mostra status de autenticação no topo
 
 ### Para Desenvolvimento:
 - ✅ Regra atual (`if true`) está adequada

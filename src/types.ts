@@ -63,6 +63,24 @@ export interface UIService {
   showLoading(show: boolean): void;
 }
 
+// Authentication Types
+export interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
+
+export interface AuthService {
+  getCurrentUser(): User | null;
+  setAuthStateChangeCallback(callback: (user: User | null) => void): void;
+  signInAnonymously(): Promise<User>;
+  signInWithEmailAndPassword(email: string, password: string): Promise<User>;
+  createUserWithEmailAndPassword(email: string, password: string): Promise<User>;
+  signOut(): Promise<void>;
+  isAuthenticated(): boolean;
+}
+
 // App Configuration
 export interface AppConfig {
   firebase: FirebaseConfig;
